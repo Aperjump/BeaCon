@@ -2,10 +2,9 @@
 Construct 6 data bases, each represent one data type:
 stock daily K bar, 5 min K bar, 15 min K bar, 30 min K bar, 60 min K bar
 and a stock daily K bar aggregation(contain all stock data)
-"""
-"""
 moduleaurther : Wang Wei <wangwei_aperion@163.com>
 """
+
 import tushare as ts
 import pandas as pd
 import pymongo
@@ -45,6 +44,9 @@ class StorageConfig(object):
 
 
 class UpdateConfig(StorageConfig):
+    """
+    Same config as StorageConig, but will download current day data
+    """
     def __init__(self, path=None):
         StorageConfig.__init__(self, path)
         self._today =time.strftime('%Y-%m-%d',time.localtime(time.time()))
