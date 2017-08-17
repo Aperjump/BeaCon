@@ -1,0 +1,8 @@
+{
+  "strategyname" : "default",
+  "stocklist" : ["600060", "600516", "000975", "603300"],
+  "starttime" : "2010-01-01",
+  "timeinterval" : "D",
+  "mongodburl" : "mongodb://localhost:27017/",
+  "mongocollection" : "EquityData"
+}
