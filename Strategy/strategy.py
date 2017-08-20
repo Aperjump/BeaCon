@@ -1,9 +1,10 @@
 """
-
+Construct a strategy template, can be used to build more sophistcated strategy class
+moduleaurther : Wang Wei <wangwei_aperion@163.com>
 """
 
 import json
-from Strategy.Position import *
+from Strategy.position import *
 
 class Strategy:
     def __init__(self, path):

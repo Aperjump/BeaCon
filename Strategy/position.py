@@ -18,6 +18,14 @@ class TransactionRecord(object):
     def topositionrecord(self):
         return PositionRecord(self.secID, self.price, self.vol, self.direc)
 
+    def adjustprice(self, commision = None, slipage = None):
+        if (self.dir).upper() == "B":
+            self.price = self.price * (1 + slipage) * (1 + commision)
+        elif (self.dir).upper() == "S":
+            self.price = self.price * (1 - slipage) * (1 - commision)
+        else:
+            raise Exception
+
 class PositionRecord(object):
 
     def __init__(self, secID, price, vol, direc):
@@ -40,21 +48,32 @@ class PositionRecord(object):
             # for log purpose
             earned = (self.avgprice - transrecord.price) * transrecord.vol
             self.avgprice = (self.avgprice * self.vol - transrecord.price  * transrecord.vol)  / temptotalvol
+        else:
+            raise Exception
 
 class Position(object):
 
-    def __init__(self, initamount):
+    def __init__(self, initamount, commision = None, slipage = None):
         # Set initial account
         self.InitMoney = initamount
         self.LeftMoney = initamount
         self.StockValue = 0
         self.TotalVal = initamount
         self.Stocks = {}
+        if commision is None:
+            self.commision = 0
+        else:
+            self.commision = commision
+        if slipage is None:
+            self.slipage = 0
+        else:
+            self.slipage = slipage
 
     def totalValadjust(self):
         self.TotalVal = self.LeftMoney + self.StockValue
 
     def holdrecord(self, transrecord):
+        transrecord.adjustprice(commision = self.commision, slipage = self.slipage)
         ## Account Value Change
         if (transrecord.dir).upper() == "B":
             self.LeftMoney = self.LeftMoney - (transrecord.price * transrecord.vol)
@@ -64,6 +83,8 @@ class Position(object):
             self.LeftMoney = self.LeftMoney + (transrecord.price * transrecord.vol)
             self.StockValue = self.StockValue - (transrecord.price * transrecord.vol)
             self.totalValadjust()
+        else:
+            raise Exception
         # Stock Position Adjust
         if transrecord.secID in self.Stocks.keys():
             t_positionrecord = self.Stocks.get(transrecord.secID)
