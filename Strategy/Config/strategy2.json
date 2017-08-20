@@ -1,6 +1,6 @@
 {
   "strategyname" : "test2",
-  "stocklist" : "600000",
+  "stocklist" : "600060",
   "starttime" : "2015-01-01",
   "endtime" : "2017-05-04",
   "timeinterval" : "D",

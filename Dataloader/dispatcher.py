@@ -7,20 +7,21 @@ import pymongo
 import json
 import multiprocessing as mul
 from Strategy.strategy import strategy
-from dbadapter import *
+from Dataloader.dbadapter import *
+
 class atomicdispatcher(mul.Process):
 
-    def start(self, path = None, strategy = None):
-        self.__init__(path, strategy)
+    def start(self):
         self.initmongo()
+        self.run()
 
     def __init__(self, path = None, strategy = None):
         if path is None:
-            path = "../Strategy/Config/strategy1.json"
+            path = "./Storage/stocknames.json"
         self._stocknamefile = open(path, encoding="utf-8")
         self._configstruct = json.load(self._stocknamefile)
         try:
-            assert strategy != None
+            assert strategy is not None
         except AssertionError as e:
             print("Missing strategy, try to find one! ")
         self._strategy = strategy
@@ -39,3 +40,12 @@ class atomicdispatcher(mul.Process):
         for item in self._dbconnect:
             self._strategy.OnEvent(item)
 
+if __name__ == "__main__":
+    strategy1 = strategy(path = "./Strategy/Config/strategy1.json")
+    strategy2 = strategy(path = "./Strategy/Config/strategy2.json")
+    D1 = atomicdispatcher(strategy = strategy1)
+    D2 = atomicdispatcher(strategy = strategy2)
+    D1.start()
+    D2.start()
+    for p in mul.active_children():
+        print("child   p.name:" + p.name + "\tp.id" + str(p.pid))
