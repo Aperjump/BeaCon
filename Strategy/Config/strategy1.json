@@ -1,0 +1,8 @@
+{
+  "strategyname" : "test1",
+  "stocklist" : "600060",
+  "starttime" : "2015-01-01",
+  "timeinterval" : "D",
+  "mongodburl" : "mongodb://localhost:27017/",
+  "mongocollection" : "EquityData"
+}
