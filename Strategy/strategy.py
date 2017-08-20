@@ -3,8 +3,9 @@
 """
 
 import json
+from Strategy.Position import *
 
-class strategy:
+class Strategy:
     def __init__(self, path):
         if path is None:
             raise Exception
@@ -18,4 +19,4 @@ class strategy:
         print(item)
 
 if __name__ == "__main__":
-    strategy1 = strategy("./Strategy/Config/strategy1.json")
+    strategy1 = Strategy("./Strategy/Config/strategy1.json")
