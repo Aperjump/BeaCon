@@ -36,6 +36,7 @@ class StorageConfig(object):
                                               start = self._configstruct['starttime'])
                 tempcollection = self._db[iter]
                 temprecord['time'] = temprecord.index
+                temprecord['secID'] = iter
                 tempcollection.insert_many(json.loads(temprecord.to_json(orient='records')))
                 print(iter + " insert finish!")
             except Exception as e:
