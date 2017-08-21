@@ -6,16 +6,18 @@ moduleaurther : Wang Wei <wangwei_aperion@163.com>
 import pymongo
 import json
 import multiprocessing as mul
-from Strategy.strategy import strategy
+from Strategy.strategy import Strategy
 from Dataloader.dbadapter import *
 
 class atomicdispatcher(mul.Process):
 
+    # A false implementation: strategy class must be pickable
+    # But I haven't studied it.
     def start(self):
         self.initmongo()
-        self.run()
 
     def __init__(self, path = None, strategy = None):
+        super(atomicdispatcher, self).__init__()
         if path is None:
             path = "./Storage/stocknames.json"
         self._stocknamefile = open(path, encoding="utf-8")
@@ -40,12 +42,17 @@ class atomicdispatcher(mul.Process):
         for item in self._dbconnect:
             self._strategy.OnEvent(item)
 
+class Dispatcher:
+
+    def __init__(self):
+        pass
+
 if __name__ == "__main__":
-    strategy1 = strategy(path = "./Strategy/Config/strategy1.json")
-    strategy2 = strategy(path = "./Strategy/Config/strategy2.json")
+    strategy1 = Strategy(path = "./Strategy/Config/strategy1.json")
+    strategy2 = Strategy(path = "./Strategy/Config/strategy2.json")
     D1 = atomicdispatcher(strategy = strategy1)
     D2 = atomicdispatcher(strategy = strategy2)
     D1.start()
     D2.start()
-    for p in mul.active_children():
-        print("child   p.name:" + p.name + "\tp.id" + str(p.pid))
+    for D in mul.active_children():
+        print("child   p.name:" + D.name + "\tp.id" + str(D.pid))
