@@ -53,21 +53,15 @@ class PositionRecord(object):
 
 class Position(object):
 
-    def __init__(self, initamount, commision = None, slipage = None):
+    def __init__(self, initamount, commision = 0, slipage = 0):
         # Set initial account
         self.InitMoney = initamount
         self.LeftMoney = initamount
         self.StockValue = 0
         self.TotalVal = initamount
         self.Stocks = {}
-        if commision is None:
-            self.commision = 0
-        else:
-            self.commision = commision
-        if slipage is None:
-            self.slipage = 0
-        else:
-            self.slipage = slipage
+        self.commision = commision
+        self.slipage = slipage
 
     def totalValadjust(self):
         self.TotalVal = self.LeftMoney + self.StockValue
