@@ -5,8 +5,9 @@ moduleaurther : Wang Wei <wangwei_aperion@163.com>
 
 import json
 from Strategy.position import *
+from abc import ABCMeta
 
-class Strategy:
+class Strategy(ABCMeta):
     def __init__(self, path):
         if path is None:
             raise Exception
@@ -16,8 +17,12 @@ class Strategy:
             self._stock = self._strategystruct['stocklist']
             self._begin = self._strategystruct['starttime']
             self._end = self._strategystruct['endtime']
+
     def OnEvent(self, item):
-        print(item)
+        raise Exception
+
+
+
 
 if __name__ == "__main__":
     strategy1 = Strategy("./Strategy/Config/strategy1.json")
