@@ -7,7 +7,6 @@ moduleaurther : Wang Wei <wangwei_aperion@163.com>
 """
 
 import json
-from abc import ABCMeta
 
 class TransactionRecord(object):
 
@@ -159,30 +158,30 @@ class OnRoadOrderManager(object):
                     record.count += 1
 
 
-class Strategy(ABCMeta):
+class Strategy(object):
 
-    def __init__(cls, path):
+    def __init__(self, path):
         if path is None:
             raise Exception
         else:
-            cls._pathfile = open(path, encoding="utf-8")
-            cls._strategystruct = json.load(cls._pathfile)
-            cls._stock = cls._strategystruct['stocklist']
-            cls._begin = cls._strategystruct['starttime']
-            cls._end = cls._strategystruct['endtime']
+            self.count = 0
+            self._pathfile = open(path, encoding="utf-8")
+            self._strategystruct = json.load(self._pathfile)
+            self._stock = self._strategystruct['stocklist']
+            self._begin = self._strategystruct['starttime']
+            self._end = self._strategystruct['endtime']
             # record orders which have not closed deal
-            cls.onroad = OnRoadOrderManager()
 
-    def setaccount(cls, position = None):
+    def setaccount(self, position = None):
         if position is None:
-            cls._position = Position(1000000, commision =.001, slipage = .001)
-            cls.onroad = OnRoadOrderManager(position = cls._position)
+            self._position = Position(1000000, commision = 0.001, slipage = 0.001)
+            self.onroad = OnRoadOrderManager(position = self._position)
 
-    def OnEvent(cls, item):
+    def OnEvent(self, item):
         raise Exception
 
-    def sendorder(cls, onroadorder):
-        cls.onroad.get(onroadorder)
+    def sendorder(self, onroadorder):
+        self.onroad.get(onroadorder)
 
 
 if __name__ == "__main__":
