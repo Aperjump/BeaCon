@@ -6,4 +6,6 @@
   "timeinterval" : "D",
   "mongodburl" : "mongodb://localhost:27017/",
   "mongocollection" : "EquityData"
+  "length1" : 5,
+  "length2" : 10
 }

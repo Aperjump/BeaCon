@@ -3,7 +3,6 @@ MA Strategy Test:
 Rule:
 If MA(5) upcross MA(10) generate buy signal;
 if MA(5) downcross MA(10) generate sell signal.
-
 moduleaurther : Wang Wei <wangwei_aperion@163.com>
 """
 
