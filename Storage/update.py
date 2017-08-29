@@ -8,7 +8,7 @@ import pandas as pd
 import pymongo
 import json
 import time
-from storage import UpdateConfig
+from Storage.storage import UpdateConfig
 
 if __name__ == "__main__":
     update = UpdateConfig()
