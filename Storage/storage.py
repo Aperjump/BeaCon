@@ -4,7 +4,6 @@ stock daily K bar, 5 min K bar, 15 min K bar, 30 min K bar, 60 min K bar
 and a stock daily K bar aggregation(contain all stock data)
 moduleaurther : Wang Wei <wangwei_aperion@163.com>
 """
-
 import tushare as ts
 import pandas as pd
 import pymongo
@@ -25,10 +24,12 @@ class StorageConfig(object):
         self._configstruct = json.load(self._stocknamefile)
         self._stocknames = self._configstruct['stocklist']
         print("used stocks: ", self._stocknames)
+
     def initmongo(self):
         # Connect to Mongodb
         self._client = pymongo.MongoClient(self._configstruct['mongodburl'])
         self._db = self._client[self._configstruct['mongocollection']]
+
     def insert(self):
         for iter in self._stocknames:
             try:
@@ -43,7 +44,6 @@ class StorageConfig(object):
                 # write in log files
                 print(e)
 
-
 class UpdateConfig(StorageConfig):
     """
     Same config as StorageConig, but will download current day data
@@ -51,6 +51,7 @@ class UpdateConfig(StorageConfig):
     def __init__(self, path=None):
         StorageConfig.__init__(self, path)
         self._today =time.strftime('%Y-%m-%d',time.localtime(time.time()))
+
     def loadstocknames(self):
         self._configstruct = json.load(self._stocknamefile)
         self._stocknames = self._configstruct['stocklist']
