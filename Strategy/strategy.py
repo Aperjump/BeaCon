@@ -7,8 +7,8 @@ moduleaurther : Wang Wei <wangwei_aperion@163.com>
 """
 
 import json
-from Strategy.Record import *
-from Strategy.Position import *
+from Strategy.record import *
+from Strategy.position import *
 
 class Strategy(object):
 
