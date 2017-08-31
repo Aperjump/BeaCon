@@ -1,7 +1,12 @@
 """
-Record Strategy position info
+This class holds `money` transaction records, including InitMoney, StockValue, LeftMoney, TotalVal.
+    TotalVal = StockValue + LeftMoney
+Also, since in one day, investors can but stock multiple times, position should also hold records stock's
+average holding costs for the convenience of individual stock revenue.
 moduleaurther : Wang Wei <wangwei_aperion@163.com>
 """
+
+from Strategy.record import *
 
 class Position(object):
 
@@ -17,6 +22,10 @@ class Position(object):
 
     def totalValadjust(self):
         self.TotalVal = self.LeftMoney + self.StockValue
+
+    def changedate(self):
+        for iterstock in self.Stocks:
+            iterstock.sellable = iterstock.vol
 
     def holdrecord(self, transrecord):
         transrecord.adjustprice(commision = self.commision, slipage = self.slipage)

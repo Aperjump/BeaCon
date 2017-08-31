@@ -3,6 +3,32 @@ Various Transaction Data
 moduleaurther : Wang Wei <wangwei_aperion@163.com>
 """
 
+class PositionRecord(object):
+
+    def __init__(self, secID, price, vol, direc):
+        self.secID = secID
+        self.avgprice = price
+        self.vol = vol
+        self.dir = direc
+        self.sellable = 0
+
+    def update(self, transrecord):
+        if (transrecord.dir).upper() == "B":
+            temptotalvol = self.vol + transrecord.vol
+            self.avgprice = (self.avgprice * self.vol + transrecord.price * transrecord.vol) / temptotalvol
+            self.vol = temptotalvol
+        elif (transrecord.dir).upper() == "S":
+            temptotalvol = self.sellable - transrecord.vol
+            try:
+                assert temptotalvol > 0
+            except AssertionError as e:
+                print("Prohibit short stocks")
+            # for log purpose
+            earned = (self.avgprice - transrecord.price) * transrecord.vol
+            self.avgprice = (self.avgprice * self.vol - transrecord.price * transrecord.vol) / temptotalvol
+        else:
+            raise Exception
+
 class TransactionRecord(object):
 
     def __init__(self, secID, price, vol, direc):
@@ -24,31 +50,6 @@ class TransactionRecord(object):
         else:
             raise Exception
 
-class PositionRecord(object):
-
-    def __init__(self, secID, price, vol, direc):
-        self.secID = secID
-        self.avgprice = price
-        self.vol = vol
-        self.dir = direc
-
-    def update(self, transrecord):
-        if (transrecord.dir).upper() == "B":
-            temptotalvol = self.vol + transrecord.vol
-            self.avgprice = (self.avgprice * self.vol + transrecord.price * transrecord.vol) / temptotalvol
-            self.vol = temptotalvol
-        elif (transrecord.dir).upper() == "S":
-            temptotalvol = self.vol - transrecord.vol
-            try:
-                assert temptotalvol > 0
-            except AssertionError as e:
-                print("Prohibit short stocks")
-            # for log purpose
-            earned = (self.avgprice - transrecord.price) * transrecord.vol
-            self.avgprice = (self.avgprice * self.vol - transrecord.price  * transrecord.vol)  / temptotalvol
-        else:
-            raise Exception
-
 class OnRoadOrder(object):
 
     def __init__(self):
@@ -56,8 +57,11 @@ class OnRoadOrder(object):
         self.price = 10
         self.vol = 100
         self.dir = "B"
-        self.count = 0
-        self.alive = False
+        # self.count = 0
+        # self.alive = False
+    def __repr__(self):
+        print("SecID : {}, price : {}, vol : {}, direction : {}".format(self.secID, self.price,
+                                                                        self.vol, self.dir))
 
     def build(self, secID, price, vol, direc):
         self.secID = secID
@@ -66,20 +70,21 @@ class OnRoadOrder(object):
         # dir = 'B' means "Buy"
         # dir = 'S' means "Sell"
         self.dir = direc
-        self.count = 0
-        self.alive = True
+        # self.count = 0
+        #self.alive = True
 
     def destruct(self):
         self.secID = "000000"
         self.price = 10
         self.vol = 100
         self.dir = "B"
-        self.count = 0
-        self.alive = False
+        # self.count = 0
+        # self.alive = False
 
     def totransactionrecord(self):
         return TransactionRecord(self.secID, self.price, self.vol, self.dir)
-
+"""
+DEPRECATED
 class OnRoadOrderManager(object):
 
     def __init__(self, position, maxnum = 5, time2cancel = 10):
@@ -116,3 +121,4 @@ class OnRoadOrderManager(object):
                     record.distruct()
                 else:
                     record.count += 1
+"""
