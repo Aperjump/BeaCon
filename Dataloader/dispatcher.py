@@ -33,7 +33,11 @@ class Dispatcher(object):
         self.stockdb = self.db[DBmap[self.freq]]
 
     def register(self, secid, strategy):
-        self.map[secid] = strategy
+        templist = self.map.get(secid)
+        if templist is None:
+            self.map[secid] = [strategy]
+        else:
+            self.map[secid].append(strategy)
 
     # After register phase finish, begin search in the database
     def loaddata(self):
