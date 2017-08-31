@@ -1,0 +1,6 @@
+{
+  "DataDirectory" : "E:/StockData/stock_data/",
+  "mongodburl" : "mongodb://localhost:27017/",
+  "mongocollection" : "StockData",
+  "mongodocument" : "Fivemin"
+}
