@@ -1,0 +1,7 @@
+{
+  "strategyname" : "test",
+  "stocklist" : ["600060","600000", "600516"],
+  "initmoney" : 1000000,
+  "commision" : 0.001,
+  "slipage" : 0.001
+}
