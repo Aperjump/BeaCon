@@ -9,14 +9,17 @@ import json
 
 class dbadapter:
 
-    def __init__(self, mongconct, begin, end):
-        self._connection = mongconct
-        self._begin = begin
-        self._end = end
+    def __init__(self, mongconct, begin, end, stocks):
+        self.connection = mongconct
+        self.begin = begin
+        self.end = end
+        self.stock = stocks
         self.connect()
+
     def connect(self):
-        self._resultiter = self._connection.find({"$and" : [{"time" : {"$gte" : self._begin}},
-                            {"time" : {"$lte" : self._end }}]}).sort([("time",pymongo.ASCENDING)])
+        self._resultiter = self.connection.find({"code":{"$in":self.stock},
+                                                 "date":{"$lte":self.end},
+                                                 "date":{"$gte":self.begin}}).sort([("date",pymongo.ASCENDING)])
     # Confused here, should I just implement next() making dbadapater an iterable class,
     # or make it a fully-fledged iterator
     def __iter__(self):
@@ -39,7 +42,7 @@ class dbiter:
 
 if __name__ == "__main__":
     tempconnect = pymongo.MongoClient()
-    tempconnect = tempconnect['EquityData']['600060']
-    tempiter = dbadapter(tempconnect,"2016-01-01", "2017-05-08")
-    for i in tempiter:
-        print(i)
+    tempconnect = tempconnect['StockData']['StockDaily']
+
+    tempiter = dbadapter(tempconnect,"2016-01-01", "2017-05-08", ['600060', '600000'])
+    next(tempiter)

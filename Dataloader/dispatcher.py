@@ -5,54 +5,50 @@ moduleaurther : Wang Wei <wangwei_aperion@163.com>
 
 import pymongo
 import json
-import multiprocessing as mul
-from Strategy.strategy import Strategy
 from Dataloader.dbadapter import *
 
-class atomicdispatcher(mul.Process):
+DBmap = {"D" : "StockDaily", "1min" : "Onemin", "5min" : "Fivemin", "15min" : "Fifteenmin", "30min" : "Thirtymin"}
 
-    # A false implementation: strategy class must be pickable
-    # But I haven't studied it.
-    def start(self):
-        self.initmongo()
+class Dispatcher(object):
 
-    def __init__(self, path = None, strategy = None):
-        super(atomicdispatcher, self).__init__()
+    def __init__(self, path = None):
         if path is None:
-            path = "./Storage/stocknames.json"
-        self._stocknamefile = open(path, encoding="utf-8")
-        self._configstruct = json.load(self._stocknamefile)
-        try:
-            assert strategy is not None
-        except AssertionError as e:
-            print("Missing strategy, try to find one! ")
-        self._strategy = strategy
+            path = "./backtestingconfig.json"
+        self.config = json.load(open(path))
+        self.begin = self.config['begin']
+        self.end = self.config['end']
+        self.freq = self.config['freq']
+        self.initmongo()
+        self.map = {}
+        # stocks = map.key()
+        self.stocks = None
 
     def initmongo(self):
-        self._client = pymongo.MongoClient(self._configstruct['mongodburl'])
+        self.client = pymongo.MongoClient(self.config['Mongo']['mongodburl'])
         try:
-            self._db = self._client[self._configstruct['mongocollection']]
-            self._stockdb = self._db[self._strategy._stock]
-        except pymongo.CollectionInvalid as e:
+            self.db = self.client[self.config['Mongo']['mongodocument']]
+        except Exception as e:
             print("Cannot find the correct database, try it again.")
-        # init ierators
-        self._dbconnect = dbadapter(self._stockdb, self._strategy._begin, self._strategy._end)
+        # Use freq find data base document
+        self.stockdb = self.db[DBmap[self.freq]]
+
+    def register(self, secid, strategy):
+        self.map[secid] = strategy
+
+    # After register phase finish, begin search in the database
+    def loaddata(self):
+        if self.stocks is None:
+            self.stocks = self.map.keys()
+        self.dbconnect = dbadapter(self.stockdb, self.begin, self.end, self.stocks)
 
     def run(self):
-        for item in self._dbconnect:
-            self._strategy.OnEvent(item)
+        for it in self.dbconnect:
+            tempstrategylist = self.map[it['code']]
+            for tempstrategy in tempstrategylist:
+                tempstrategy.onbar(it)
 
-class Dispatcher:
-
-    def __init__(self):
-        pass
 
 if __name__ == "__main__":
-    strategy1 = Strategy(path = "./Strategy/Config/strategy1.json")
-    strategy2 = Strategy(path = "./Strategy/Config/strategy2.json")
-    D1 = atomicdispatcher(strategy = strategy1)
-    D2 = atomicdispatcher(strategy = strategy2)
-    D1.start()
-    D2.start()
-    for D in mul.active_children():
-        print("child   p.name:" + D.name + "\tp.id" + str(D.pid))
+    tempconnect = Dispatcher("E:/QuantFrameWork/BeaCon/Dataloader/backtestconfig.json")
+    tempconnect.stocks = ['600060','600000']
+    tempconnect.loaddata()

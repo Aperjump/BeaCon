@@ -1,0 +1,9 @@
+{
+  "begin" : "2013-01-01",
+  "end" : "2017-06-04",
+  "freq" : "D",
+  "Mongo" : {
+   "mongodburl" : "mongodb://localhost:27017/",
+    "mongodocument" : "StockData"
+  }
+}
