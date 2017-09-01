@@ -23,8 +23,11 @@ class Position(object):
     def totalValadjust(self):
         self.TotalVal = self.LeftMoney + self.StockValue
 
+    def buildstock(self, secID):
+        self.Stocks[secID] = PositionRecord(secID, 0, 0, "B")
+
     def changedate(self):
-        for iterstock in self.Stocks:
+        for key, iterstock in self.Stocks.items():
             iterstock.sellable = iterstock.vol
 
     def holdrecord(self, transrecord):
