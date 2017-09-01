@@ -7,5 +7,7 @@ from Strategy.StrategyExample import *
 
 if __name__ == "__main__":
     dispatcher = Dispatcher("E:/QuantFrameWork/BeaCon/Dataloader/backtestconfig.json")
-    strategy = TestStrat()
+    strategy = TestStrat("E:/QuantFrameWork/BeaCon/Strategy/Config/strategyconfig.json")
     strategy.setdispatcher(dispatcher)
+    dispatcher.loaddata()
+    dispatcher.run()
