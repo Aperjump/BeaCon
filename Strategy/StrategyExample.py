@@ -4,7 +4,7 @@ moduleaurther : vnpy
 """
 
 from Strategy.strategy import *
-from collections import deque
+from Strategy.record import *
 import math
 import talib
 import numpy as np
@@ -73,9 +73,9 @@ class TestStrat(StrategyTemplate):
                                                  np.array(singlestock.rsiLength, np.float64))[-1]
                 if singlestock.atrvalue > singlestock.atrMa:
                     if singlestock.rsiValue > singlestock.rsiBuy:
-                        singlestock.sendorder(singlestock.secID, 300, singlestock.closearray[-1] + 0.02, "B")
+                        self.sendorder(OnRoadOrder(singlestock.secID, 300, singlestock.closearray[-1] + 0.02, "B"))
                     elif singlestock.rsiValue < singlestock.rsiSell:
-                        singlestock.sendorder(singlestock.secID, 300, singlestock.closearray[-1] - 0.02, "S")
+                        self.sendorder(OnRoadOrder(singlestock.secID, 300, singlestock.closearray[-1] - 0.02, "S"))
 
 if __name__ == "__main__":
     strategy1 = TestStrat("./Strategy/Config/strategy1.json")
