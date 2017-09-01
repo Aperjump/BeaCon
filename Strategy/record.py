@@ -7,11 +7,24 @@ class PositionRecord(object):
 
     def __init__(self, secID, price, vol, direc):
         self.secID = secID
-        self.avgprice = price
-        self.vol = vol
+        self.avgprice = float(price)
+        self.vol = float(vol)
         self.dir = direc
         self.sellable = 0
 
+    def __repr__(self):
+        return "secID : {}, avgprice : {}, vol : {}, dir : {}, sellable : {}".format(self.secID,
+                                                                                    self.avgprice,
+                                                                                    self.vol,
+                                                                                    self.dir,
+                                                                                    self.sellable)
+
+    def __str__(self):
+        return "secID : {}, avgprice : {}, vol : {}, dir : {}, sellable : {}".format(self.secID,
+                                                                                    self.avgprice,
+                                                                                    self.vol,
+                                                                                    self.dir,
+                                                                                    self.sellable)
     def update(self, transrecord):
         if (transrecord.dir).upper() == "B":
             temptotalvol = self.vol + transrecord.vol
@@ -33,8 +46,8 @@ class TransactionRecord(object):
 
     def __init__(self, secID, price, vol, direc):
         self.secID = secID
-        self.price = price
-        self.vol = vol
+        self.price = float(price)
+        self.vol = float(vol)
         # dir = 'B' means "Buy"
         # dir = 'S' means "Sell"
         self.dir = direc
@@ -52,27 +65,19 @@ class TransactionRecord(object):
 
 class OnRoadOrder(object):
 
-    def __init__(self):
-        self.secID = "000000"
-        self.price = 10
-        self.vol = 100
-        self.dir = "B"
-        # self.count = 0
-        # self.alive = False
-    def __repr__(self):
-        print("SecID : {}, price : {}, vol : {}, direction : {}".format(self.secID, self.price,
-                                                                        self.vol, self.dir))
-
-    def build(self, secID, price, vol, direc):
+    def __init__(self, secID, price, vol, direc):
         self.secID = secID
-        self.price = price
-        self.vol = vol
+        self.price = float(price)
+        self.vol = float(vol)
         # dir = 'B' means "Buy"
         # dir = 'S' means "Sell"
         self.dir = direc
         # self.count = 0
         #self.alive = True
 
+    def __repr__(self):
+        print("SecID : {}, price : {}, vol : {}, direction : {}".format(self.secID, self.price,
+                                                                        self.vol, self.dir))
     def destruct(self):
         self.secID = "000000"
         self.price = 10
