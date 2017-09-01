@@ -10,8 +10,9 @@ import talib
 
 class Stock(object):
 
-    def __init__(self, secID):
+    def __init__(self, secID, config):
         self.secID = secID
+        self.config = config
         self.buffersize = self.config['buffersize']
         self.buffernum = 0
         # Set parameters
@@ -38,7 +39,7 @@ class TestStrat(StrategyTemplate):
         StrategyTemplate.__init__(self, path = path)
         self.stocklist = {}
         for tempstock in self.stock:
-            self.stocklist[tempstock] = Stock(tempstock)
+            self.stocklist[tempstock] = Stock(tempstock, self.config)
 
     def strategysignal(self, item):
         singlestock = self.stocklist[item.code]
