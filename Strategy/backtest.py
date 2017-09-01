@@ -1,5 +1,6 @@
 """
 Backtest using "StrategyExample.py"
+Success on backtesting, next step will focus on logging and outcome production!!
 moduleaurther : Wang Wei <wangwei_aperion@163.com>
 """
 from Dataloader.dispatcher import *
