@@ -7,6 +7,8 @@ from Strategy.strategy import *
 from collections import deque
 import math
 import talib
+import numpy as np
+
 
 class Stock(object):
 
@@ -42,33 +44,33 @@ class TestStrat(StrategyTemplate):
             self.stocklist[tempstock] = Stock(tempstock, self.config)
 
     def strategysignal(self, item):
-        singlestock = self.stocklist[item.code]
+        singlestock = self.stocklist[item["code"]]
         if singlestock.buffernum < singlestock.buffersize:
-            singlestock.closearray.append(item)
-            singlestock.higharrary.append(item)
-            singlestock.lowarrary.append(item)
+            singlestock.closearray.append(item["close"])
+            singlestock.higharrary.append(item["high"])
+            singlestock.lowarrary.append(item["low"])
             singlestock.buffernum += 1
         else:
-            singlestock.closearray.append(item)
-            singlestock.higharrary.append(item)
-            singlestock.lowarrary.append(item)
+            singlestock.closearray.append(item["close"])
+            singlestock.higharrary.append(item["high"])
+            singlestock.lowarrary.append(item["low"])
             singlestock.closearray[0:singlestock.buffersize - 1] = singlestock.closearray[1:singlestock.buffersize]
             singlestock.higharrary[0:singlestock.buffersize - 1] = singlestock.higharrary[1:singlestock.buffersize]
             singlestock.lowarrary[0:singlestock.buffersize - 1] = singlestock.lowarrary[1:singlestock.buffersize]
-            singlestock.atrvalue = talib.ATR(singlestock.higharrary,
-                                             singlestock.lowarrary,
-                                             singlestock.closearray,
-                                             singlestock.atrLength)[-1]
+            singlestock.atrvalue = talib.ATR(np.array(singlestock.higharrary, np.float64),
+                                             np.array(singlestock.lowarrary, np.float64),
+                                             np.array(singlestock.closearray, np.float64),
+                                             np.array(singlestock.atrLength, np.float64))[-1]
             singlestock.atrcount += 1
             if singlestock.atrcount < singlestock.atrbuffersize:
                 singlestock.atrarrary.append(singlestock.atrvalue)
             else:
                 singlestock.atrarrary.append(singlestock.atrvalue)
                 singlestock.atrarrary[0:singlestock.atrbuffersize - 1] = singlestock.atrarrary[1:singlestock.atrbuffersize]
-                singlestock.atrMa = talib.MA(singlestock.atrarrary,
-                                             singlestock.atrMaLength)[-1]
-                singlestock.rsiValue = talib.RSI(singlestock.closearray,
-                                                 singlestock.rsiLength)[-1]
+                singlestock.atrMa = talib.MA(np.array(singlestock.atrarrary,np.float64),
+                                             np.array(singlestock.atrMaLength, np.float64))[-1]
+                singlestock.rsiValue = talib.RSI(np.array(singlestock.closearray, np.float64),
+                                                 np.array(singlestock.rsiLength, np.float64))[-1]
                 if singlestock.atrvalue > singlestock.atrMa:
                     if singlestock.rsiValue > singlestock.rsiBuy:
                         singlestock.sendorder(singlestock.secID, 300, singlestock.closearray[-1] + 0.02, "B")
