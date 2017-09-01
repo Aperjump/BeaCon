@@ -42,13 +42,14 @@ class Dispatcher(object):
     # After register phase finish, begin search in the database
     def loaddata(self):
         if self.stocks is None:
-            self.stocks = self.map.keys()
+            self.stocks = list(self.map.keys())
         self.dbconnect = dbadapter(self.stockdb, self.begin, self.end, self.stocks)
+        self.dbiter = self.dbconnect.connect()
 
     def run(self):
-        for it in self.dbconnect:
-            tempstrategylist = self.map[it['code']]
-            for tempstrategy in tempstrategylist:
+        for it in self.dbiter:
+           tempstrategylist = self.map[it['code']]
+           for tempstrategy in tempstrategylist:
                 tempstrategy.onbar(it)
 
 
@@ -56,3 +57,4 @@ if __name__ == "__main__":
     tempconnect = Dispatcher("E:/QuantFrameWork/BeaCon/Dataloader/backtestconfig.json")
     tempconnect.stocks = ['600060','600000']
     tempconnect.loaddata()
+    tempconnect.run()
