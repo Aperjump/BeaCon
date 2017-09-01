@@ -40,20 +40,22 @@ class StrategyTemplate(object):
 
     def start(self):
         self.setaccount()
+        for itestock in self.stock:
+            self.position.buildstock(itestock)
 
     def onbar(self, item):
-        if item.volume == 0:
+        if item["volume"] == 0:
             pass
         else:
             ######## Time    Control     ##########
             if self.date is None:
                 self.start()
-                print("Begin backtesting : " + item.date)
-                self.date = pd.to_datetime(item.date).date()
-            if pd.to_datetime(item.date).date() > self.date:
+                print("Begin backtesting : " + item["date"])
+                self.date = pd.to_datetime(item["date"]).date()
+            if pd.to_datetime(item["date"]).date() > self.date:
                 self.position.changedate()
-                self.date = pd.to_datetime(item.date).date()
-                print("Backtesting on : " + item.date)
+                self.date = pd.to_datetime(item["date"]).date()
+                print("Backtesting on : " + item["date"])
             ######## Clear Untrade Order ##########
             self.clearorder(item)
             ######## User Code: Signal   ##########
@@ -64,9 +66,10 @@ class StrategyTemplate(object):
 
     def clearorder(self, item):
         for key,order in self.onroad.items():
-            if order.price <= item.high and order.price >= item.low:
+            if order.price <= item["high"] and order.price >= item["low"]:
                 print("Successful Transaction : secID : {}, price : {}, vol : {}, "
                       "dir : {}".format(order.secID, order.price, order.vol, order.dir))
+                self.position.Stocks[order.secID].update(order.totransactionrecord())
                 self.position.holdrecord(order.totransactionrecord())
 
     def sendorder(self, onroadorder):
@@ -76,7 +79,7 @@ class StrategyTemplate(object):
             if self.position.LeftMoney >= onroadorder.price * onroadorder.vol:
                 print("Sending Order : secID : {}, price : {}, vol : {}, "
                       "dir : {}".format(onroadorder.secID, onroadorder.price, onroadorder.vol, onroadorder.dir))
-                self.onroad.append({self.reforder : onroadorder})
+                self.onroad[self.reforder] = onroadorder
             else:
                 print("Order {}, secID : {}, price : {}, vol : {}, "
                       "dir : {} cannot generate order for lacking of money.".format(self.reforder,onroadorder.secID,
@@ -86,7 +89,7 @@ class StrategyTemplate(object):
             if self.position.Stocks[onroadorder.secID].sellable >= onroadorder.vol:
                 print("Sending Order : secID : {}, price : {}, vol : {}, "
                       "dir : {}".format(onroadorder.secID, onroadorder.price, onroadorder.vol, onroadorder.dir))
-                self.onroad.append({self.reforder : onroadorder})
+                self.onroad[self.reforder] = onroadorder
             else:
                 print("Order {}, secID : {}, price : {}, vol : {}, "
                       "dir : {} cannot generate order for no stock inventory.".format(self.reforder, onroadorder.secID,
