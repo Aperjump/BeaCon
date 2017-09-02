@@ -76,8 +76,9 @@ class OnRoadOrder(object):
         #self.alive = True
 
     def __repr__(self):
-        print("SecID : {}, price : {}, vol : {}, direction : {}".format(self.secID, self.price,
-                                                                        self.vol, self.dir))
+        return "SecID : {}, price : {}, vol : {}, direction : {}".format(self.secID, self.price,
+                                                                        self.vol, self.dir)
+
     def destruct(self):
         self.secID = "000000"
         self.price = 10
