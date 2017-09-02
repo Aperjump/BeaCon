@@ -2,13 +2,12 @@
 Various Transaction Data
 moduleaurther : Wang Wei <wangwei_aperion@163.com>
 """
-
 class PositionRecord(object):
 
     def __init__(self, secID, price, vol, direc):
         self.secID = secID
-        self.avgprice = float(price)
-        self.vol = float(vol)
+        self.avgprice = price
+        self.vol = vol
         self.dir = direc
         self.sellable = 0
 
@@ -31,49 +30,41 @@ class PositionRecord(object):
             self.avgprice = (self.avgprice * self.vol + transrecord.price * transrecord.vol) / temptotalvol
             self.vol = temptotalvol
         elif (transrecord.dir).upper() == "S":
-            temptotalvol = self.sellable - transrecord.vol
-            try:
-                assert temptotalvol > 0
-            except AssertionError as e:
-                print("Prohibit short stocks")
+            temptotalvol = self.vol - transrecord.vol
             # for log purpose
-            earned = (self.avgprice - transrecord.price) * transrecord.vol
+            earned = (transrecord.price - self.avgprice) * transrecord.vol
             self.avgprice = (self.avgprice * self.vol - transrecord.price * transrecord.vol) / temptotalvol
         else:
             raise Exception
 
 class TransactionRecord(object):
 
-    def __init__(self, secID, price, vol, direc):
+    def __init__(self, secID, price,oriprice, vol, direc, date):
         self.secID = secID
-        self.price = float(price)
-        self.vol = float(vol)
+        self.price = price
+        self.vol = vol
         # dir = 'B' means "Buy"
         # dir = 'S' means "Sell"
         self.dir = direc
+        self.oriprice = oriprice
+        self.date = date
 
     def topositionrecord(self):
-        return PositionRecord(self.secID, self.price, self.vol, self.direc)
-
-    def adjustprice(self, commision = None, slipage = None):
-        if (self.dir).upper() == "B":
-            self.price = self.price * (1 + slipage) * (1 + commision)
-        elif (self.dir).upper() == "S":
-            self.price = self.price * (1 - slipage) * (1 - commision)
-        else:
-            raise Exception
+        return PositionRecord(self.secID, self.price, self.vol, self.dir)
 
 class OnRoadOrder(object):
 
-    def __init__(self, secID, price, vol, direc):
+    def __init__(self, secID, price, vol, direc, date):
         self.secID = secID
-        self.price = float(price)
-        self.vol = float(vol)
+        self.price = price
+        self.vol = vol
         # dir = 'B' means "Buy"
         # dir = 'S' means "Sell"
         self.dir = direc
         # self.count = 0
         #self.alive = True
+        self.oriprice = price
+        self.date = date
 
     def __repr__(self):
         return "SecID : {}, price : {}, vol : {}, direction : {}".format(self.secID, self.price,
@@ -86,9 +77,18 @@ class OnRoadOrder(object):
         self.dir = "B"
         # self.count = 0
         # self.alive = False
+        self.oriprice = 0
+        self.date = None
+    def totransactionrecord(self, date):
+        return TransactionRecord(self.secID, self.price,self.oriprice, self.vol, self.dir, date)
 
-    def totransactionrecord(self):
-        return TransactionRecord(self.secID, self.price, self.vol, self.dir)
+    def adjustprice(self, commision=None, slipage=None):
+        if (self.dir).upper() == "B":
+            self.price = round(self.price * (1 + slipage) * (1 + commision), 2)
+        elif (self.dir).upper() == "S":
+            self.price = round(self.price * (1 - slipage) * (1 - commision), 2)
+        else:
+            raise Exception
 """
 DEPRECATED
 class OnRoadOrderManager(object):

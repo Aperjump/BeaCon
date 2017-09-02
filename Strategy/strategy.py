@@ -8,6 +8,7 @@ from Strategy.record import *
 from Strategy.position import *
 from Dataloader.dispatcher import *
 import pandas as pd
+import logging
 
 class StrategyTemplate(object):
 
@@ -22,6 +23,9 @@ class StrategyTemplate(object):
             self.date = None
             self.reforder = 0
             self.onroad = {}
+        self.logger = logging.getLogger("Main.strategy")
+        self.mainlogger = logging.getLogger("Main")
+        self.logger.addHandler(logging.FileHandler("./temp/Sendorder.csv"))
 
     def setdispatcher(self, dispatcher):
         self.dispatcher = dispatcher
@@ -50,12 +54,12 @@ class StrategyTemplate(object):
             ######## Time    Control     ##########
             if self.date is None:
                 self.start()
-                print("Begin backtesting : " + item["date"])
+                self.mainlogger.info("Begin backtesting : " + item["date"])
                 self.date = pd.to_datetime(item["date"]).date()
             if pd.to_datetime(item["date"]).date() > self.date:
-                self.position.changedate()
                 self.date = pd.to_datetime(item["date"]).date()
-                print("Backtesting on : " + item["date"])
+                self.position.changedate(self.date)
+                self.mainlogger.info("Backtesting on : " + item["date"])
             ######## Clear Untrade Order ##########
             self.clearorder(item)
             ######## User Code: Signal   ##########
@@ -68,10 +72,10 @@ class StrategyTemplate(object):
         for key,order in self.onroad.items():
             if order.secID == item['code']:
                 if order.price <= item["high"] and order.price >= item["low"]:
-                    print("Successful Transaction : secID : {}, price : {}, vol : {}, "
-                          "dir : {}".format(order.secID, order.price, order.vol, order.dir))
-                    self.position.Stocks[order.secID].update(order.totransactionrecord())
-                    self.position.holdrecord(order.totransactionrecord())
+                    self.mainlogger.info("Successful Transaction : secID : {}, price : {}, vol : {}, "
+                          "dir : {}".format(order.secID, round(order.price, 2), order.vol, order.dir))
+                    self.position.Stocks[order.secID].update(order.totransactionrecord(self.date))
+                    self.position.holdrecord(order.totransactionrecord(self.date))
             else:
                 pass
 
@@ -80,6 +84,7 @@ class StrategyTemplate(object):
         for key, order in self.onroad.items():
             if order.secID == secID:
                 keysgoodbye.append(key)
+                self.position.cancelrecord(order)
         for item in keysgoodbye:
             del self.onroad[item]
 
@@ -88,23 +93,33 @@ class StrategyTemplate(object):
         self.reforder += 1
         if (onroadorder.dir).upper() == "B":
             if self.position.LeftMoney >= onroadorder.price * onroadorder.vol:
-                print("Sending Order : secID : {}, price : {}, vol : {}, "
-                      "dir : {}".format(onroadorder.secID, onroadorder.price, onroadorder.vol, onroadorder.dir))
+                self.logger.info("{}, {}, {}, {}, {}, {}".format(onroadorder.date, onroadorder.secID, round(onroadorder.oriprice, 2),
+                                                         round(onroadorder.price,2),
+                                                         onroadorder.vol, onroadorder.dir))
+                self.mainlogger.info("Sending Order : date : {}, secID : {}, oriprice : {},  price : {}, vol : {}, "
+                      "dir : {}".format(onroadorder.date, onroadorder.secID, round(onroadorder.oriprice, 2), round(onroadorder.price, 2),
+                                        onroadorder.vol, onroadorder.dir))
                 self.onroad[self.reforder] = onroadorder
+                self.position.sendrecord(onroadorder)
             else:
-                print("Order {}, secID : {}, price : {}, vol : {}, "
+                self.mainlogger.info("Order {}, secID : {}, price : {}, vol : {}, "
                       "dir : {} cannot generate order for lacking of money.".format(self.reforder,onroadorder.secID,
-                                                                                   onroadorder.price, onroadorder.vol,
+                                                                                   round(onroadorder.price, 2), onroadorder.vol,
                                                                                    onroadorder.dir))
         elif (onroadorder.dir).upper() == "S":
             if self.position.Stocks[onroadorder.secID].sellable >= onroadorder.vol:
-                print("Sending Order : secID : {}, price : {}, vol : {}, "
-                      "dir : {}".format(onroadorder.secID, onroadorder.price, onroadorder.vol, onroadorder.dir))
+                self.logger.info("{}, {}, {}, {}, {}, {}".format(onroadorder.date, onroadorder.secID, round(onroadorder.oriprice, 2),
+                                                         round(onroadorder.price,2),
+                                                         onroadorder.vol, onroadorder.dir))
+                self.mainlogger.info("Sending Order : date : {}, secID : {}, oriprice : {},  price : {}, vol : {}, "
+                      "dir : {}".format(onroadorder.date, onroadorder.secID, round(onroadorder.oriprice, 2), round(onroadorder.price, 2),
+                                        onroadorder.vol, onroadorder.dir))
                 self.onroad[self.reforder] = onroadorder
+                self.position.sendrecord(onroadorder)
             else:
-                print("Order {}, secID : {}, price : {}, vol : {}, "
+                self.mainlogger.info("Order {}, secID : {}, price : {}, vol : {}, "
                       "dir : {} cannot generate order for no stock inventory.".format(self.reforder, onroadorder.secID,
-                                                                                      onroadorder.price, onroadorder.vol,
+                                                                                      round(onroadorder.price, 2), onroadorder.vol,
                                                                                       onroadorder.dir))
         else:
             raise Exception
