@@ -66,14 +66,25 @@ class StrategyTemplate(object):
 
     def clearorder(self, item):
         for key,order in self.onroad.items():
-            if order.price <= item["high"] and order.price >= item["low"]:
-                print("Successful Transaction : secID : {}, price : {}, vol : {}, "
-                      "dir : {}".format(order.secID, order.price, order.vol, order.dir))
-                self.position.Stocks[order.secID].update(order.totransactionrecord())
-                self.position.holdrecord(order.totransactionrecord())
+            if order.secID == item['code']:
+                if order.price <= item["high"] and order.price >= item["low"]:
+                    print("Successful Transaction : secID : {}, price : {}, vol : {}, "
+                          "dir : {}".format(order.secID, order.price, order.vol, order.dir))
+                    self.position.Stocks[order.secID].update(order.totransactionrecord())
+                    self.position.holdrecord(order.totransactionrecord())
+            else:
+                pass
+
+    def cancelorder(self, secID):
+        keysgoodbye = []
+        for key, order in self.onroad.items():
+            if order.secID == secID:
+                keysgoodbye.append(key)
+        for item in keysgoodbye:
+            del self.onroad[item]
 
     def sendorder(self, onroadorder):
-        self.onroad.clear()
+        self.cancelorder(onroadorder.secID)
         self.reforder += 1
         if (onroadorder.dir).upper() == "B":
             if self.position.LeftMoney >= onroadorder.price * onroadorder.vol:
