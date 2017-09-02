@@ -49,3 +49,19 @@ class Position(object):
             t_positionrecord.update(transrecord)
         else:
             self.Stocks.__setitem__({transrecord.secID : transrecord.topositionrecord()})
+
+    @property
+    def leftmoney(self):
+        return self.LeftMoney
+
+    @property
+    def stockvalue(self):
+        return self.stockvalue
+
+    @property
+    def totalval(self):
+        return self.TotalVal
+
+    @property
+    def stock(self):
+        return self.Stocks
