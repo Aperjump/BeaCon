@@ -16,7 +16,6 @@ class StrategyTemplate(object):
         if path is None:
             raise Exception
         else:
-            self.sellablemap = {}
             self.config = json.load(open(path))
             self.stock = self.config['stocklist']
             # record orders which have not closed deal
