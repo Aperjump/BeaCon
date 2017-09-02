@@ -1,6 +1,6 @@
 {
   "strategyname" : "test",
-  "stocklist" : ["600060","600000", "600516"],
+  "stocklist" : ["600060","600000", "600516", "002230", "600111"],
   "initmoney" : 1000000,
   "commision" : 0.001,
   "slipage" : 0.001,
