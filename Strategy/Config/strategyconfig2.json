@@ -1,0 +1,8 @@
+{
+  "strategyname" : "test2",
+  "stocklist" : ["600000"],
+  "initmoney" : 1000000,
+  "commision" : 0.001,
+  "slipage" : 0,
+  "buffersize" : 100
+}
