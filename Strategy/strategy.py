@@ -25,6 +25,7 @@ class StrategyTemplate(object):
         self.logger = logging.getLogger("Main.strategy")
         self.mainlogger = logging.getLogger("Main")
         self.logger.addHandler(logging.FileHandler("./temp/sendorder.csv"))
+        self.name = self.config['strategyname']
 
     def setdispatcher(self, dispatcher):
         self.dispatcher = dispatcher
@@ -37,7 +38,7 @@ class StrategyTemplate(object):
     def setaccount(self, position = None):
         if position is None:
             self.position = Position(self.config['initmoney'], commision = self.config['commision'],
-                                     slipage = self.config['slipage'])
+                                     slipage = self.config['slipage'], name = self.name)
         # DEPRECATED
         # self.onroad = OnRoadOrderManager(position = self.position)
 
@@ -73,8 +74,8 @@ class StrategyTemplate(object):
         for key,order in self.onroad.items():
             if order.secID == item['code']:
                 if order.price <= item["high"] and order.price >= item["low"]:
-                    self.mainlogger.info("Successful Transaction : secID : {}, price : {}, vol : {}, "
-                          "dir : {}".format(order.secID, round(order.price, 2), order.vol, order.dir))
+                    self.mainlogger.info("Successful Transaction : strategy : {}, secID : {}, price : {}, vol : {}, "
+                          "dir : {}".format(self.name, order.secID, round(order.price, 2), order.vol, order.dir))
                     self.position.holdrecord(order.totransactionrecord(self.date))
                     keysgoodbye.append(key)
             else:
@@ -96,32 +97,26 @@ class StrategyTemplate(object):
         self.reforder += 1
         if (onroadorder.dir).upper() == "B":
             if self.position.LeftMoney >= onroadorder.price * onroadorder.vol:
-                self.logger.info("{}, {}, {}, {}, {}, {}".format(onroadorder.date, onroadorder.secID, round(onroadorder.oriprice, 2),
+                self.logger.info("{}, {}, {}, {}, {}, {}, {}".format(self.name, onroadorder.date, onroadorder.secID, round(onroadorder.oriprice, 2),
                                                          round(onroadorder.price,2),
                                                          onroadorder.vol, onroadorder.dir))
-                self.mainlogger.info("Sending Order : date : {}, secID : {}, oriprice : {},  price : {}, vol : {}, "
-                      "dir : {}".format(onroadorder.date, onroadorder.secID, round(onroadorder.oriprice, 2), round(onroadorder.price, 2),
-                                        onroadorder.vol, onroadorder.dir))
                 self.onroad[self.reforder] = onroadorder
                 self.position.sendrecord(onroadorder)
             else:
-                self.mainlogger.info("Order {}, secID : {}, price : {}, vol : {}, "
-                      "dir : {} cannot generate order for lacking of money.".format(self.reforder,onroadorder.secID,
+                self.mainlogger.info("Strategyname : {}, Order {}, secID : {}, price : {}, vol : {}, "
+                      "dir : {} cannot generate order for lacking of money.".format(self.name, self.reforder,onroadorder.secID,
                                                                                    round(onroadorder.price, 2), onroadorder.vol,
                                                                                    onroadorder.dir))
         elif (onroadorder.dir).upper() == "S":
             if (self.position.Stocks[onroadorder.secID].sellable >= onroadorder.vol) and (self.position.Stocks[onroadorder.secID].vol >= onroadorder.vol):
-                self.logger.info("{}, {}, {}, {}, {}, {}".format(onroadorder.date, onroadorder.secID, round(onroadorder.oriprice, 2),
+                self.logger.info("{}, {}, {}, {}, {}, {}, {}".format(self.name, onroadorder.date, onroadorder.secID, round(onroadorder.oriprice, 2),
                                                          round(onroadorder.price,2),
                                                          onroadorder.vol, onroadorder.dir))
-                self.mainlogger.info("Sending Order : date : {}, secID : {}, oriprice : {},  price : {}, vol : {}, "
-                      "dir : {}".format(onroadorder.date, onroadorder.secID, round(onroadorder.oriprice, 2), round(onroadorder.price, 2),
-                                        onroadorder.vol, onroadorder.dir))
                 self.onroad[self.reforder] = onroadorder
                 self.position.sendrecord(onroadorder)
             else:
-                self.mainlogger.info("Order {}, secID : {}, price : {}, vol : {}, "
-                      "dir : {} cannot generate order for no stock inventory.".format(self.reforder, onroadorder.secID,
+                self.mainlogger.info("Strategyname : {}, Order {}, secID : {}, price : {}, vol : {}, "
+                      "dir : {} cannot generate order for no stock inventory.".format(self.name, self.reforder, onroadorder.secID,
                                                                                       round(onroadorder.price, 2), onroadorder.vol,
                                                                                       onroadorder.dir))
         else:
