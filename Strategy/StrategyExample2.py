@@ -1,6 +1,6 @@
 """
 Test strategy, cited from other author
-moduleaurther : vnpy
+moduleaurther : Wang Wei <wangwei_aperion@163.com>
 """
 
 from Strategy.strategy import *
