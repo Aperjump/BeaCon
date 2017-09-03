@@ -14,13 +14,16 @@ class StorageFromDist(object):
     def load(self):
         os.chdir(self.config['DataDirectory'])
         self.dirfiles = os.listdir()
+        length = len(self.dirfiles)
+        n = 0
         for file in self.dirfiles:
             tempdata = pd.read_csv(file)
-            tempdata = tempdata[['date','open','high','low','close','volume']]
+            tempdata = tempdata[['date','open','high','low','close','volume','adjust_price']]
             # file : "sh600060.csv"
             tempdata['code'] = file[2:-4]
             self._docu.insert_many(json.loads(tempdata.to_json(orient='records')))
-            print(file[2:-4] + " finish!")
+            n += 1
+            print(file[2:-4] + " finish!  {}%".format(round((n / length) * 100,2)))
 
     def loadmin(self):
         os.chdir(self.config['DataDirectory'])
