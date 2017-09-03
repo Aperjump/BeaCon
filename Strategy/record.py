@@ -10,6 +10,8 @@ class PositionRecord(object):
         self.vol = vol
         self.dir = direc
         self.sellable = 0
+        self.earn = 0
+        self.currentprice = 0
 
     def __repr__(self):
         return "secID : {}, avgprice : {}, vol : {}, dir : {}, sellable : {}".format(self.secID,
@@ -24,18 +26,22 @@ class PositionRecord(object):
                                                                                     self.vol,
                                                                                     self.dir,
                                                                                     self.sellable)
+
     def update(self, transrecord):
         if (transrecord.dir).upper() == "B":
             temptotalvol = self.vol + transrecord.vol
             self.avgprice = (self.avgprice * self.vol + transrecord.price * transrecord.vol) / temptotalvol
             self.vol = temptotalvol
         elif (transrecord.dir).upper() == "S":
-            temptotalvol = self.vol - transrecord.vol
+            self.vol -= transrecord.vol
             # for log purpose
-            earned = (transrecord.price - self.avgprice) * transrecord.vol
-            self.avgprice = (self.avgprice * self.vol - transrecord.price * transrecord.vol) / temptotalvol
+            self.earn += (transrecord.price - self.avgprice) * transrecord.vol
+            if self.vol == 0:
+                self.avgprice = 0
         else:
             raise Exception
+    def updatenewprice(self, price):
+        self.currentprice = price
 
 class TransactionRecord(object):
 

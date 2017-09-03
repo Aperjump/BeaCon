@@ -34,6 +34,9 @@ class Position(object):
         self.positionlogger.addHandler(self.positionhandler)
 
     def totalValadjust(self):
+        self.StockValue = 0
+        for key, iterstock in self.Stocks.items():
+            self.StockValue += iterstock.avgprice * iterstock.vol + iterstock.earn
         self.TotalVal = self.LeftMoney + self.StockValue
 
     def buildstock(self, secID):
@@ -44,6 +47,13 @@ class Position(object):
             iterstock.sellable = iterstock.vol
         self.totalValadjust()
         self.moneylogger.info("{}, {}, {}, {}".format(date, self.LeftMoney, self.StockValue, self.TotalVal))
+
+    def calcposition(self, item):
+        t_positionrecord = self.Stocks.get(item['code'])
+        t_positionrecord.updatenewprice(item['close'])
+        self.positionlogger.info("{}, {}, {}, {}, {}, {}".format(item['date'], item['code'], item['close'],
+                                                             t_positionrecord.avgprice, t_positionrecord.vol,
+                                                                 t_positionrecord.earn))
 
     def sendrecord(self, onroadorder):
         onroadorder.adjustprice(commision=self.commision, slipage=self.slipage)
@@ -56,23 +66,13 @@ class Position(object):
         if (onroadorder.dir).upper() == "B":
             self.LeftMoney += (onroadorder.price * onroadorder.vol)
         elif (onroadorder.dir).upper() == "S":
-            self.Stocks[onroadorder.secID].sellable += onroadorder.vol
+            self.Stocks[onroadorder.secID].sellable = self.Stocks[onroadorder.secID].vol
 
     def holdrecord(self, transrecord):
-        if (transrecord.dir).upper() == "B":
-            self.StockValue = self.StockValue + (transrecord.oriprice * transrecord.vol)
-            self.totalValadjust()
-        elif (transrecord.dir).upper() == "S":
-            self.StockValue = self.StockValue - (transrecord.oriprice * transrecord.vol)
-            self.totalValadjust()
-        else:
-            raise Exception
         # Stock Position Adjust
         if transrecord.secID in list(self.Stocks.keys()):
-            t_positionrecord = self.Stocks.get(transrecord.secID)
+            t_positionrecord = self.Stocks[transrecord.secID]
             t_positionrecord.update(transrecord)
-            self.positionlogger.info("{}, {}, {}, {}, {}".format(transrecord.date, t_positionrecord.secID, t_positionrecord.avgprice,
-                                                             t_positionrecord.vol, t_positionrecord.sellable))
             self.logger.info("{}, {}, {}, {}, {}".format(transrecord.date, transrecord.secID, transrecord.price,
                                                      transrecord.vol, transrecord.dir))
         else:
