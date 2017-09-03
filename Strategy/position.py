@@ -11,7 +11,7 @@ import logging
 
 class Position(object):
 
-    def __init__(self, initamount, commision = 0, slipage = 0):
+    def __init__(self, initamount, commision = 0, slipage = 0, name = None):
         # Set initial account
         self.InitMoney = initamount
         self.LeftMoney = initamount
@@ -20,6 +20,7 @@ class Position(object):
         self.Stocks = {}
         self.commision = commision
         self.slipage = slipage
+        self.name = name
         ######### Transaction Logger ##########
         self.logger = logging.getLogger("Main.transaction")
         self.handler = logging.FileHandler("./temp/transaction.csv")
@@ -36,7 +37,7 @@ class Position(object):
     def totalValadjust(self):
         self.StockValue = 0
         for key, iterstock in self.Stocks.items():
-            self.StockValue += iterstock.avgprice * iterstock.vol + iterstock.earn
+            self.StockValue += iterstock.currentprice * iterstock.vol + iterstock.earn
         self.TotalVal = self.LeftMoney + self.StockValue
 
     def buildstock(self, secID):
@@ -46,12 +47,12 @@ class Position(object):
         for key, iterstock in self.Stocks.items():
             iterstock.sellable = iterstock.vol
         self.totalValadjust()
-        self.moneylogger.info("{}, {}, {}, {}".format(date, self.LeftMoney, self.StockValue, self.TotalVal))
+        self.moneylogger.info("{}, {}, {}, {}, {}".format(self.name, date, self.LeftMoney, self.StockValue, self.TotalVal))
 
     def calcposition(self, item):
         t_positionrecord = self.Stocks.get(item['code'])
         t_positionrecord.updatenewprice(item['close'])
-        self.positionlogger.info("{}, {}, {}, {}, {}, {}".format(item['date'], item['code'], item['close'],
+        self.positionlogger.info("{}, {}, {}, {}, {}, {}, {}".format(self.name, item['date'], item['code'], item['close'],
                                                              t_positionrecord.avgprice, t_positionrecord.vol,
                                                                  t_positionrecord.earn))
 
@@ -73,7 +74,7 @@ class Position(object):
         if transrecord.secID in list(self.Stocks.keys()):
             t_positionrecord = self.Stocks[transrecord.secID]
             t_positionrecord.update(transrecord)
-            self.logger.info("{}, {}, {}, {}, {}".format(transrecord.date, transrecord.secID, transrecord.price,
+            self.logger.info("{}, {}, {}, {}, {}, {}".format(self.name, transrecord.date, transrecord.secID, transrecord.price,
                                                      transrecord.vol, transrecord.dir))
         else:
             self.Stocks.__setitem__({transrecord.secID : transrecord.topositionrecord()})
