@@ -24,7 +24,7 @@ class StrategyTemplate(object):
             self.onroad = {}
         self.logger = logging.getLogger("Main.strategy")
         self.mainlogger = logging.getLogger("Main")
-        self.logger.addHandler(logging.FileHandler("./temp/Sendorder.csv"))
+        self.logger.addHandler(logging.FileHandler("./temp/sendorder.csv"))
 
     def setdispatcher(self, dispatcher):
         self.dispatcher = dispatcher
@@ -63,20 +63,24 @@ class StrategyTemplate(object):
             self.clearorder(item)
             ######## User Code: Signal   ##########
             self.strategysignal(item)
+            self.position.calcposition(item)
 
     def strategysignal(self, item):
         pass
 
     def clearorder(self, item):
+        keysgoodbye = []
         for key,order in self.onroad.items():
             if order.secID == item['code']:
                 if order.price <= item["high"] and order.price >= item["low"]:
                     self.mainlogger.info("Successful Transaction : secID : {}, price : {}, vol : {}, "
                           "dir : {}".format(order.secID, round(order.price, 2), order.vol, order.dir))
-                    self.position.Stocks[order.secID].update(order.totransactionrecord(self.date))
                     self.position.holdrecord(order.totransactionrecord(self.date))
+                    keysgoodbye.append(key)
             else:
                 pass
+        for item in keysgoodbye:
+            del self.onroad[item]
 
     def cancelorder(self, secID):
         keysgoodbye = []
@@ -106,7 +110,7 @@ class StrategyTemplate(object):
                                                                                    round(onroadorder.price, 2), onroadorder.vol,
                                                                                    onroadorder.dir))
         elif (onroadorder.dir).upper() == "S":
-            if self.position.Stocks[onroadorder.secID].sellable >= onroadorder.vol:
+            if (self.position.Stocks[onroadorder.secID].sellable >= onroadorder.vol) and (self.position.Stocks[onroadorder.secID].vol >= onroadorder.vol):
                 self.logger.info("{}, {}, {}, {}, {}, {}".format(onroadorder.date, onroadorder.secID, round(onroadorder.oriprice, 2),
                                                          round(onroadorder.price,2),
                                                          onroadorder.vol, onroadorder.dir))
@@ -122,6 +126,10 @@ class StrategyTemplate(object):
                                                                                       onroadorder.dir))
         else:
             raise Exception
+
+    def end(self):
+        for iterstock in self.stock:
+            self.cancelorder(iterstock)
 
 if __name__ == "__main__":
     strategy1 = StrategyTemplate("./Strategy/Config/strategy1.json")

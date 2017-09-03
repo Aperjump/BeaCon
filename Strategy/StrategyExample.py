@@ -73,9 +73,9 @@ class TestStrat(StrategyTemplate):
                                                  np.array(singlestock.rsiLength, np.float64))[-1]
                 if singlestock.atrvalue > singlestock.atrMa:
                     if singlestock.rsiValue > singlestock.rsiBuy:
-                        self.sendorder(OnRoadOrder(singlestock.secID, singlestock.closearray[-1] + 0.02, 300, "B", self.date))
+                        self.sendorder(OnRoadOrder(singlestock.secID, singlestock.closearray[-1] - 0.05, 300, "B", self.date))
                     elif singlestock.rsiValue < singlestock.rsiSell:
-                        self.sendorder(OnRoadOrder(singlestock.secID, singlestock.closearray[-1] - 0.02, 300, "S", self.date))
+                        self.sendorder(OnRoadOrder(singlestock.secID, singlestock.closearray[-1] + 0.05, 300, "S", self.date))
 
 if __name__ == "__main__":
     strategy1 = TestStrat("./Strategy/Config/strategy1.json")
