@@ -23,15 +23,15 @@ class Stock(object):
         self.rsiLength = 5
         self.rsiEntry = 16
 
-        self.rsiBuy = 50 + self.rsiEntry
-        self.rsiSell = 50 - self.rsiEntry
+        self.rsiBuy = 20 + self.rsiEntry
+        self.rsiSell = 20 - self.rsiEntry
 
         self.closearray = []
         self.higharrary = []
         self.lowarrary = []
         self.atrarrary = []
         self.atrcount = 0
-        self.atrbuffersize = 100
+        self.atrbuffersize = 50
 
 class TestStrat(StrategyTemplate):
 
